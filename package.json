@@ -1,0 +1,13 @@
+{
+  "name": "smarthome-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Racine du projet SmartHome - Relais vers l'application mobile",
+  "scripts": {
+    "start": "npm --prefix maison-intelligente start",
+    "android": "npm --prefix maison-intelligente run android",
+    "ios": "npm --prefix maison-intelligente run ios",
+    "web": "npm --prefix maison-intelligente run web",
+    "doctor": "npm --prefix maison-intelligente run doctor"
+  }
+}
