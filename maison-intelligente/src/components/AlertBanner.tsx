@@ -3,29 +3,65 @@
 //  Bandeau rouge d'alerte intrusion — visible sur tous les écrans
 // ============================================================
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Colors, FontSize, FontWeight, Spacing, Radii } from '../constants/theme';
 import { useHouseStore } from '../store/useHouseStore';
 import { SmartIcon } from './SmartIcon';
+import { SoundAlert } from '../utils/soundAlert';
+import { Haptics } from '../utils/haptics';
 
 export const AlertBanner: React.FC = () => {
     const alert = useHouseStore((s) => s.status?.alert);
     const acknowledgeAlert = useHouseStore((s) => s.acknowledgeAlert);
     const alertAckCommand = useHouseStore((s) => s.alertAckCommand);
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+
+    useEffect(() => {
+        if (alert?.active) {
+            SoundAlert.startIntrusionAlarm();
+            // Animation de clignotement d'urgence
+            const loop = Animated.loop(
+                Animated.sequence([
+                    Animated.timing(pulseAnim, {
+                        toValue: 0.7,
+                        duration: 350,
+                        useNativeDriver: true,
+                    }),
+                    Animated.timing(pulseAnim, {
+                        toValue: 1,
+                        duration: 350,
+                        useNativeDriver: true,
+                    }),
+                ])
+            );
+            loop.start();
+            return () => {
+                loop.stop();
+                SoundAlert.stop();
+            };
+        } else {
+            SoundAlert.stop();
+        }
+    }, [alert?.active]);
 
     if (!alert?.active) return null;
 
+    const handleAck = () => {
+        Haptics.success();
+        acknowledgeAlert();
+    };
+
     return (
-        <View style={styles.banner}>
+        <Animated.View style={[styles.banner, { opacity: pulseAnim }]}>
             <View style={styles.left}>
                 <View style={styles.iconBox}>
-                    <SmartIcon name="alert" size={20} color="#FFFFFF" />
+                    <SmartIcon name="alert" size={22} color="#FFFFFF" />
                 </View>
-                <View>
-                    <Text style={styles.title}>ALERTE INTRUSION</Text>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.title}>ALERTE INTRUSION EN COURS</Text>
                     <Text style={styles.sub}>
-                        Une porte s'est ouverte en mode verrouillé
+                        {alert.message || "Effraction détectée en mode verrouillé !"}
                     </Text>
                 </View>
             </View>
@@ -34,14 +70,15 @@ export const AlertBanner: React.FC = () => {
                     styles.ackBtn,
                     alertAckCommand.status === 'pending' && styles.ackBtnDisabled,
                 ]}
-                onPress={acknowledgeAlert}
+                onPress={handleAck}
                 disabled={alertAckCommand.status === 'pending'}
+                activeOpacity={0.8}
             >
                 <Text style={styles.ackText}>
                     {alertAckCommand.status === 'pending' ? '…' : 'Acquitter'}
                 </Text>
             </TouchableOpacity>
-        </View>
+        </Animated.View>
     );
 };
 

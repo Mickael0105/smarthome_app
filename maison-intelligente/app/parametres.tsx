@@ -250,9 +250,16 @@ export default function ParametresScreen() {
                     )}
                 </View>
 
-                {/* À propos */}
-                <Text style={[styles.sectionTitle, { color: colors.textSub }]}>Projet Académique</Text>
+                {/* À propos & Découverte */}
+                <Text style={[styles.sectionTitle, { color: colors.textSub }]}>Découverte & Projet</Text>
                 <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}>
+                    <SettingRow
+                        label="Guide de Première Utilisation (Onboarding)"
+                        description="Revoir la présentation visuelle et les repères"
+                        onPress={() => router.push('/onboarding' as any)}
+                        right={<Text style={{ color: colors.primary, fontSize: 18 }}>›</Text>}
+                    />
+                    <View style={[styles.divider, { backgroundColor: colors.surfaceBorder }]} />
                     <SettingRow
                         label="Documentation Technique"
                         description="Spécification des composants et diagrammes"

@@ -132,6 +132,7 @@ export interface Alert {
     door_id: string;
     since: string;                  // ISO 8601
     sourceType?: 'door' | 'window' | 'garage';
+    message?: string;
 }
 
 // ---------- Scénarios & Automatisations ----------

@@ -26,6 +26,7 @@ import { EnergyWidget } from '../../src/components/EnergyWidget';
 import { UnavailableState } from '../../src/components/UnavailableState';
 import { SmartIcon } from '../../src/components/SmartIcon';
 import { formatDate } from '../../src/utils/helpers';
+import { Haptics } from '../../src/utils/haptics';
 
 export default function TableauDeBordScreen() {
     const router = useRouter();
@@ -78,10 +79,26 @@ export default function TableauDeBordScreen() {
                         <SmartIcon name={isDark ? 'sun' : 'moon'} size={18} color={isDark ? '#F59E0B' : '#6366F1'} />
                     </TouchableOpacity>
 
+                    {/* Bouton Guide Visuel / Onboarding */}
+                    <TouchableOpacity
+                        style={[styles.iconBtn, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}
+                        onPress={() => {
+                            Haptics.light();
+                            router.push('/onboarding' as any);
+                        }}
+                        activeOpacity={0.7}
+                        accessibilityLabel="Guide Visuel"
+                    >
+                        <SmartIcon name="eye" size={18} color={colors.primary} />
+                    </TouchableOpacity>
+
                     {/* Bouton Paramètres */}
                     <TouchableOpacity
                         style={[styles.iconBtn, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }]}
-                        onPress={() => router.push('/parametres')}
+                        onPress={() => {
+                            Haptics.light();
+                            router.push('/parametres');
+                        }}
                         activeOpacity={0.7}
                     >
                         <SmartIcon name="settings" size={18} color={colors.text} />

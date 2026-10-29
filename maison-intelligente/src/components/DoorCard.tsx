@@ -9,6 +9,7 @@ import { Radii, Spacing, FontSize, FontWeight, Shadows } from '../constants/them
 import { useAppTheme } from '../hooks/useAppTheme';
 import { useHouseStore } from '../store/useHouseStore';
 import { SmartIcon } from './SmartIcon';
+import { Haptics } from '../utils/haptics';
 import type { Door } from '../types/house';
 
 interface DoorCardProps {
@@ -20,6 +21,11 @@ export const DoorCard: React.FC<DoorCardProps> = ({ door }) => {
     const simulateDoorToggle = useHouseStore((s) => s.simulateDoorToggle);
     const isOpen = door.open;
     const isLocked = door.lock === 'locked';
+
+    const handleToggle = () => {
+        Haptics.toggle();
+        simulateDoorToggle(door.id);
+    };
 
     return (
         <View
@@ -113,7 +119,7 @@ export const DoorCard: React.FC<DoorCardProps> = ({ door }) => {
                             borderColor: colors.surfaceBorder,
                         },
                     ]}
-                    onPress={() => simulateDoorToggle(door.id)}
+                    onPress={handleToggle}
                     activeOpacity={0.7}
                 >
                     <Text style={[styles.toggleBtnText, { color: colors.textSub }]}>

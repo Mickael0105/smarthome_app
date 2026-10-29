@@ -17,10 +17,11 @@ import { useHouseStore } from '../store/useHouseStore';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { FontSize, FontWeight, Radii, Spacing, Shadows } from '../constants/theme';
 import { SmartIcon, type SmartIconName } from './SmartIcon';
+import { Haptics } from '../utils/haptics';
 import type { ScenarioId } from '../types/house';
 
 const SCENARIO_ICONS: Record<ScenarioId, SmartIconName> = {
-    night: 'bed',
+    night: 'moon',
     away: 'security',
     home: 'home',
     cinema: 'cinema',
@@ -28,13 +29,14 @@ const SCENARIO_ICONS: Record<ScenarioId, SmartIconName> = {
 };
 
 export const ScenarioBar: React.FC = () => {
-    const { colors } = useAppTheme();
+    const { colors, isDark } = useAppTheme();
     const scenarios = useHouseStore((s) => s.status?.scenarios);
     const activateScenario = useHouseStore((s) => s.activateScenario);
     const scenarioCommand = useHouseStore((s) => s.scenarioCommand);
     const [activeId, setActiveId] = React.useState<ScenarioId | null>(null);
 
     const handlePress = async (id: ScenarioId) => {
+        Haptics.success();
         setActiveId(id);
         await activateScenario(id);
         setActiveId(null);

@@ -9,6 +9,7 @@ import { useHouseStore } from '../store/useHouseStore';
 import { useAppTheme } from '../hooks/useAppTheme';
 import { Spacing, Radii, FontSize, FontWeight, Shadows } from '../constants/theme';
 import { SmartIcon } from './SmartIcon';
+import { Haptics } from '../utils/haptics';
 import type { HouseWindow } from '../types/house';
 
 interface WindowCardProps {
@@ -28,6 +29,7 @@ export const WindowCard: React.FC<WindowCardProps> = ({ window }) => {
 
     const handleToggle = () => {
         if (isGuest || isLoading) return;
+        Haptics.toggle();
         toggleWindow(window.id);
     };
 

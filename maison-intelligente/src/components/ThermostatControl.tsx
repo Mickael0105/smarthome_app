@@ -16,6 +16,7 @@ import { Radii, Spacing, FontSize, FontWeight, Shadows } from '../constants/them
 import { SETPOINT_MIN, SETPOINT_MAX, SETPOINT_STEP } from '../config/app.config';
 import { clamp, roundToStep } from '../utils/helpers';
 import { useAppTheme } from '../hooks/useAppTheme';
+import { Haptics } from '../utils/haptics';
 
 interface ThermostatControlProps {
     setpoint: number | null;
@@ -41,13 +42,20 @@ export const ThermostatControl: React.FC<ThermostatControlProps> = ({
     const { colors } = useAppTheme();
 
     const increment = () => {
+        Haptics.light();
         const next = clamp(roundToStep(pendingSetpoint + SETPOINT_STEP, SETPOINT_STEP), SETPOINT_MIN, SETPOINT_MAX);
         onSetpointChange(next);
     };
 
     const decrement = () => {
+        Haptics.light();
         const next = clamp(roundToStep(pendingSetpoint - SETPOINT_STEP, SETPOINT_STEP), SETPOINT_MIN, SETPOINT_MAX);
         onSetpointChange(next);
+    };
+
+    const handleConfirm = () => {
+        Haptics.success();
+        onConfirm();
     };
 
     const hasChanged = setpoint !== null && pendingSetpoint !== setpoint;
@@ -123,7 +131,7 @@ export const ThermostatControl: React.FC<ThermostatControlProps> = ({
                         { backgroundColor: colors.primary },
                         isPending && styles.confirmBtnDisabled,
                     ]}
-                    onPress={onConfirm}
+                    onPress={handleConfirm}
                     disabled={isPending}
                 >
                     {isPending ? (

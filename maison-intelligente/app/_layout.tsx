@@ -83,6 +83,10 @@ export default function RootLayout() {
                         name="aide"
                         options={{ animation: 'slide_from_right' }}
                     />
+                    <Stack.Screen
+                        name="onboarding"
+                        options={{ presentation: 'fullScreenModal', animation: 'fade' }}
+                    />
                 </Stack>
             </SafeAreaProvider>
         </GestureHandlerRootView>
