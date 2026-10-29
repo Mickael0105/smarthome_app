@@ -16,6 +16,7 @@ module.exports = {
         '^react-native$': '<rootDir>/__mocks__/react-native.js',
         '^expo-.*$': '<rootDir>/__mocks__/expo.js',
         '^@expo-google-fonts/.*$': '<rootDir>/__mocks__/expo.js',
+        '^@/(.*)$': '<rootDir>/src/$1',
     },
     // Rapport de couverture de code (ciblé sur la logique métier et utilitaires)
     collectCoverageFrom: [
