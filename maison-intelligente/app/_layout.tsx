@@ -1,10 +1,11 @@
 // ============================================================
 //  Layout racine — Expo Router (SDK 57)
 //  Support dynamique Mode Sombre & Mode Clair
+//  Guard d'authentification : redirige vers /login si déconnecté
 // ============================================================
 
-import React, { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import React, { useEffect, useRef } from 'react';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -24,6 +25,36 @@ import { getThemeColors } from '../src/constants/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
+// ─── Guard d'authentification ──────────────────────────────────
+// Surveille l'état de connexion et redirige automatiquement
+function AuthGuard({ fontsReady }: { fontsReady: boolean }) {
+    const router = useRouter();
+    const segments = useSegments();
+    const isLoggedIn = useHouseStore((s) => s.isLoggedIn);
+    const guarded = useRef(false);
+
+    useEffect(() => {
+        if (!fontsReady) return;
+
+        const inLoginScreen = segments[0] === 'login';
+        const inOnboarding = segments[0] === 'onboarding';
+
+        if (!isLoggedIn && !inLoginScreen && !inOnboarding) {
+            // Première fois ou déconnexion → aller au login
+            if (!guarded.current) {
+                guarded.current = true;
+                setTimeout(() => router.replace('/login'), 80);
+            }
+        }
+
+        if (isLoggedIn) {
+            guarded.current = false;
+        }
+    }, [isLoggedIn, segments, fontsReady, router]);
+
+    return null;
+}
+
 export default function RootLayout() {
     const startPolling = useHouseStore((s) => s.startPolling);
     const themeMode = useHouseStore((s) => s.themeMode);
@@ -38,18 +69,20 @@ export default function RootLayout() {
         Inter_800ExtraBold,
     });
 
+    const fontsReady = fontsLoaded || !!fontError;
+
     useEffect(() => {
-        if (fontsLoaded || fontError) {
+        if (fontsReady) {
             SplashScreen.hideAsync().catch(() => {});
         }
-    }, [fontsLoaded, fontError]);
+    }, [fontsReady]);
 
     useEffect(() => {
         const stopPolling = startPolling();
         return stopPolling;
     }, [startPolling]);
 
-    if (!fontsLoaded && !fontError) {
+    if (!fontsReady) {
         return null;
     }
 
@@ -57,6 +90,8 @@ export default function RootLayout() {
         <GestureHandlerRootView style={[styles.root, { backgroundColor: colors.bg }]}>
             <SafeAreaProvider>
                 <StatusBar style={isDark ? 'light' : 'dark'} />
+                {/* Guard auth — surveille et redirige si déconnecté */}
+                <AuthGuard fontsReady={fontsReady} />
                 {/* AlertBanner global — visible sur tous les écrans */}
                 <AlertBanner />
                 <Stack
@@ -69,7 +104,7 @@ export default function RootLayout() {
                     <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                     <Stack.Screen
                         name="login"
-                        options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+                        options={{ presentation: 'fullScreenModal', animation: 'fade' }}
                     />
                     <Stack.Screen
                         name="parametres"

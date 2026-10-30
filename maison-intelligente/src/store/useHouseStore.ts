@@ -117,8 +117,8 @@ export const useHouseStore = create<HouseStore>((set, get) => ({
 
     status: null,
     events: [],
-    user: mockService.auth.getUser(),
-    isLoggedIn: true,
+    user: null,
+    isLoggedIn: false,  // Force le login au démarrage
 
     connectionStatus: 'disconnected',
     offlineQueue: [],
