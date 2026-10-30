@@ -1,28 +1,26 @@
 {
   "expo": {
-    "name": "Maison Intelligente",
-    "slug": "maison-intelligente",
+    "name": "AM'NAY",
+    "slug": "amnay",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/amnay-logo.png",
     "userInterfaceStyle": "dark",
-    "scheme": "maison",
+    "scheme": "amnay",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.demo.maisonintelligente"
+      "bundleIdentifier": "com.demo.amnay"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#0F0F1A",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "foregroundImage": "./assets/amnay-logo.png"
       },
-      "package": "com.demo.maisonintelligente"
+      "package": "com.demo.amnay"
     },
     "web": {
       "bundler": "metro",
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/amnay-logo.png"
     },
     "plugins": [
       "expo-router",

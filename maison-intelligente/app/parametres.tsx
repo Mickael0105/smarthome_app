@@ -20,6 +20,7 @@ import { useAppTheme } from '../src/hooks/useAppTheme';
 import { Spacing, FontSize, FontWeight, Radii, Shadows } from '../src/constants/theme';
 import { PrimaryButton } from '../src/components/PrimaryButton';
 import { SmartIcon, SmartIconName } from '../src/components/SmartIcon';
+import { Haptics } from '../src/utils/haptics';
 import type { UserRole } from '../src/types/house';
 
 interface SettingRowProps {
@@ -275,10 +276,24 @@ export default function ParametresScreen() {
                 {/* Déconnexion */}
                 {isLoggedIn && (
                     <PrimaryButton
-                        label="Déconnecter la session"
+                        label="Se déconnecter"
                         onPress={() => {
-                            logout();
-                            router.back();
+                            Haptics.warning();
+                            Alert.alert(
+                                'Déconnexion',
+                                'Voulez-vous vraiment vous déconnecter de AM\'NAY ?',
+                                [
+                                    { text: 'Annuler', style: 'cancel' },
+                                    {
+                                        text: 'Se déconnecter',
+                                        style: 'destructive',
+                                        onPress: async () => {
+                                            await logout();
+                                            router.replace('/login');
+                                        },
+                                    },
+                                ],
+                            );
                         }}
                         variant="ghost"
                         style={{ marginTop: Spacing.md }}

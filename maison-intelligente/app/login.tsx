@@ -1,9 +1,9 @@
 // ============================================================
-//  Écran : Connexion (Authentification & RBAC)
+//  Écran : Connexion AM'NAY (Authentification & RBAC)
 //  Style iOS 18 premium — Mode Sombre & Mode Clair
 // ============================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -13,10 +13,12 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
-    Animated,
+    Image,
+    Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useHouseStore } from '../src/store/useHouseStore';
 import { useAppTheme } from '../src/hooks/useAppTheme';
 import { Spacing, FontSize, FontWeight, Radii, Shadows } from '../src/constants/theme';
@@ -32,6 +34,7 @@ const DEMO_ACCOUNTS = [
         icon: 'admin' as const,
         color: '#6366F1',
         desc: 'Contrôle total',
+        welcome: 'Bienvenue, Administrateur 👑\nVous avez un accès complet à AM\'NAY.',
     },
     {
         label: 'Famille',
@@ -40,6 +43,7 @@ const DEMO_ACCOUNTS = [
         icon: 'home' as const,
         color: '#10B981',
         desc: 'Accès limité',
+        welcome: 'Bienvenue dans votre maison 🏠\nProfitez de votre habitat connecté.',
     },
     {
         label: 'Invité',
@@ -48,6 +52,7 @@ const DEMO_ACCOUNTS = [
         icon: 'eye' as const,
         color: '#F59E0B',
         desc: 'Lecture seule',
+        welcome: 'Bienvenue, Invité 👋\nVous êtes en mode consultation.',
     },
 ];
 
@@ -63,13 +68,25 @@ export default function LoginScreen() {
     const [error, setError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
 
-    // Si déjà connecté → retour à l'accueil
-    if (isLoggedIn) {
-        router.replace('/(tabs)');
-        return null;
-    }
+    // ✅ FIX : Redirection dans useEffect, jamais pendant le rendu
+    useEffect(() => {
+        if (isLoggedIn) {
+            router.replace('/(tabs)');
+        }
+    }, [isLoggedIn, router]);
 
-    const handleLogin = async (u?: string, p?: string) => {
+    if (isLoggedIn) return null;
+
+    const showWelcome = (welcomeMsg: string) => {
+        Haptics.success();
+        Alert.alert(
+            '🏠 AM\'NAY',
+            welcomeMsg,
+            [{ text: 'Entrer', style: 'default' }],
+        );
+    };
+
+    const handleLogin = async (u?: string, p?: string, welcomeMsg?: string) => {
         const user = u ?? username.trim();
         const pass = p ?? password.trim();
 
@@ -83,22 +100,19 @@ export default function LoginScreen() {
         Haptics.light();
         try {
             await login(user, pass);
-            Haptics.success();
-            router.replace('/(tabs)');
+            const msg = welcomeMsg ?? `Bienvenue, ${user} !\nVous êtes connecté à AM'NAY.`;
+            showWelcome(msg);
         } catch (e: unknown) {
             const msg = e instanceof Error ? e.message : 'Identifiants incorrects.';
             setError(msg);
             Haptics.warning();
-        } finally {
             setLoading(false);
         }
     };
 
     const handleDemoTap = (account: typeof DEMO_ACCOUNTS[0]) => {
         Haptics.light();
-        setUsername(account.username);
-        setPassword(account.password);
-        handleLogin(account.username, account.password);
+        handleLogin(account.username, account.password, account.welcome);
     };
 
     return (
@@ -112,14 +126,18 @@ export default function LoginScreen() {
                     keyboardShouldPersistTaps="handled"
                     showsVerticalScrollIndicator={false}
                 >
-                    {/* ── En-tête ── */}
+                    {/* ── Logo AM'NAY ── */}
                     <View style={styles.hero}>
-                        <View style={[styles.heroCircle, { backgroundColor: colors.primaryDim, borderColor: `${colors.primary}55` }]}>
-                            <SmartIcon name="home" size={44} color={colors.primary} />
+                        <View style={[styles.logoWrapper, { borderColor: `${colors.primary}44` }]}>
+                            <Image
+                                source={require('../assets/amnay-logo.png')}
+                                style={styles.logoImage}
+                                resizeMode="contain"
+                            />
                         </View>
-                        <Text style={[styles.appName, { color: colors.text }]}>Maison Intelligente</Text>
+                        <Text style={[styles.appName, { color: colors.text }]}>AM'NAY</Text>
                         <Text style={[styles.subtitle, { color: colors.textSub }]}>
-                            Connectez-vous pour accéder à votre habitat
+                            Habitat Intelligent & Sécurisé
                         </Text>
                     </View>
 
@@ -257,29 +275,35 @@ const styles = StyleSheet.create({
         paddingBottom: Spacing.xxl,
     },
 
-    // Hero
+    // Hero / Logo
     hero: {
         alignItems: 'center',
-        paddingVertical: Spacing.xxl,
+        paddingVertical: Spacing.xl,
     },
-    heroCircle: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
+    logoWrapper: {
+        width: 110,
+        height: 110,
+        borderRadius: 55,
         borderWidth: 2,
+        overflow: 'hidden',
+        marginBottom: Spacing.md,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: Spacing.md,
+    },
+    logoImage: {
+        width: 110,
+        height: 110,
     },
     appName: {
-        fontSize: FontSize.xxl,
+        fontSize: 32,
         fontWeight: FontWeight.extrabold,
-        marginBottom: Spacing.xs,
-        letterSpacing: -0.5,
+        marginBottom: 4,
+        letterSpacing: 2,
     },
     subtitle: {
         fontSize: FontSize.sm,
         textAlign: 'center',
+        letterSpacing: 0.3,
     },
 
     // Section
@@ -319,7 +343,7 @@ const styles = StyleSheet.create({
         fontWeight: FontWeight.bold,
     },
     demoDesc: {
-        fontSize: FontSize.xxs ?? 10,
+        fontSize: 10,
         textAlign: 'center',
     },
 

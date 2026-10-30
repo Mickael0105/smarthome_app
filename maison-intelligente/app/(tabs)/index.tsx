@@ -11,6 +11,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     RefreshControl,
+    Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -60,7 +61,14 @@ export default function TableauDeBordScreen() {
             {/* En-tête supérieur */}
             <View style={[styles.header, { borderBottomColor: colors.surfaceBorder }]}>
                 <View style={styles.headerLeft}>
-                    <Text style={[styles.greeting, { color: colors.text }]}>Maison Intelligente</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <Image
+                            source={require('../../assets/amnay-logo.png')}
+                            style={{ width: 28, height: 28, borderRadius: 14 }}
+                            resizeMode="contain"
+                        />
+                        <Text style={[styles.greeting, { color: colors.text }]}>AM'NAY</Text>
+                    </View>
                     <Text style={[styles.subGreeting, { color: colors.textSub }]}>
                         {formatDate(status?.timestamp ?? new Date().toISOString())}
                     </Text>
